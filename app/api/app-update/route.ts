@@ -103,8 +103,11 @@ function normalizeManifest(
 }
 
 async function fetchJson<T>(url: string): Promise<T | null> {
-  const response = await fetch(url, {
-    cache: 'no-store',
+  // Cloudflare 的 edge 运行时（next-on-pages）不支持 fetch 的 cache 字段，
+  // 传入会直接抛 “The 'cache' field ... is not implemented”。这里改用
+  // 时间戳参数，达到同样的“不读缓存、每次取最新”的效果。
+  const requestUrl = `${url}${url.includes('?') ? '&' : '?'}_t=${Date.now()}`;
+  const response = await fetch(requestUrl, {
     headers: {
       Accept: 'application/json',
     },
