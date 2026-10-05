@@ -12,6 +12,7 @@ import { MovieGrid } from './MovieGrid';
 import { useTagManager } from './hooks/useTagManager';
 import { usePopularMovies } from './hooks/usePopularMovies';
 import { usePersonalizedRecommendations } from './hooks/usePersonalizedRecommendations';
+import { useAvailableMovies } from './hooks/useAvailableMovies';
 
 interface DoubanMovie {
   id: string;
@@ -70,6 +71,10 @@ export function PopularFeatures({ onSearch }: PopularFeaturesProps) {
     tags,
     contentType
   );
+
+  // 过滤掉“点进去搜不到源”的豆瓣海报，避免出现空结果页
+  const availableMovies = useAvailableMovies(movies);
+  const availableRecommendMovies = useAvailableMovies(recommendMovies);
 
   const handleMovieClick = (movie: DoubanMovie) => {
     if (onSearch) {
@@ -147,7 +152,7 @@ export function PopularFeatures({ onSearch }: PopularFeaturesProps) {
       {!isTagManagementMode && (
         effectiveRecommendSelected ? (
           <MovieGrid
-            movies={recommendMovies}
+            movies={availableRecommendMovies}
             loading={recommendLoading}
             hasMore={recommendHasMore}
             onMovieClick={handleMovieClick}
@@ -156,7 +161,7 @@ export function PopularFeatures({ onSearch }: PopularFeaturesProps) {
           />
         ) : (
           <MovieGrid
-            movies={movies}
+            movies={availableMovies}
             loading={loading}
             hasMore={hasMore}
             onMovieClick={handleMovieClick}
